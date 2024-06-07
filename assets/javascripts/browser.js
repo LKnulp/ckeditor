@@ -388,14 +388,34 @@ qq.FileUploaderBasic.prototype = {
             this._uploadFile(files[i]);        
         }        
     },       
-    _uploadFile: function(fileContainer){      
-        var id = this._handler.add(fileContainer);
-        var fileName = this._handler.getName(id);
+    _uploadFile: function(fileContainer){ 
+        // ### ChatGPT 
+        // Get the original file's properties 
+        var name = fileContainer.name.replace(/\s/g, "_"); 
         
-        if (this._options.onSubmit(id, fileName) !== false){
-            this._onSubmit(id, fileName);
-            this._handler.upload(id, this._options.params);
-        }
+        // Modify the filename 
+        var type = fileContainer.type; 
+        var lastModified = fileContainer.lastModified; 
+        
+        // Create a new Blob object with the modified filename 
+        var modifiedFile = new Blob([fileContainer], { type: type }); 
+        modifiedFile.lastModified = lastModified; 
+        
+        // Create a new File object with the modified filename 
+        fileContainer = new File(
+            [modifiedFile], 
+            name, 
+            { type: type, lastModified: lastModified }
+        ); 
+        // ### END ChatGPT 
+        
+        var id = this._handler.add(fileContainer); 
+        var fileName = this._handler.getName(id); 
+        
+        if (this._options.onSubmit(id, fileName) !== false) { 
+            this._onSubmit(id, fileName); 
+            this._handler.upload(id, this._options.params); 
+        } 
     },      
     _validateFile: function(file){
         var name, size;
